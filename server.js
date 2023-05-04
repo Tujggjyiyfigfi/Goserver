@@ -15,7 +15,7 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+funcfu handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		//serve the resource
@@ -43,3 +43,4 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 
+const 
