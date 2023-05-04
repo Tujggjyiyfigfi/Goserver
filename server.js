@@ -2,7 +2,7 @@ const http = require('http')
 
 const fs = require('fs')
 
-const port = 2222
+const port = 8080
 
 var entries = []
 
