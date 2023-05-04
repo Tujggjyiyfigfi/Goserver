@@ -1,46 +1,73 @@
+const http = require('http')
 
-package main
+const fs = require('fs')
 
-import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strings"
-)
+const port = 2222
 
-var entries = []string{}
+var entries = []
 
-func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
-}
+const server = http.createServer((req, res) => {
 
-funcfu handler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		//serve the resource
-		fmt.Fprintf(w, "<table><tr><th>Timestamp</th><th>Action</th><th>Data</th></tr>")
-		for i, _ := range entries {
-			fmt.Fprintf(w, "%s", entries[len(entries)-i-1])
-		}
-		fmt.Fprintf(w, "</table>")
-	case "POST":
-		//add entry
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			fmt.Fprintf(w, err.Error())
-		}
-		entry := strings.SplitN(string(body), "|", 3)
-		new_entry := fmt.Sprintf("<tr><td>%s</td><td>%s</td> <td>%s</td></tr>", entry[0], entry[1], entry[2])
-		entries = append(entries, new_entry)
-		if len(entries) > 10000 {
-			entries = entries[1:]
-		}
-		fmt.Fprintf(w, "POST\n")
-	default:
-		//do nothing
-	}
-}
+  switch(req.method){
 
+    case 'GET':
 
-const 
+      //serve the resource
+
+      res.setHeader('Content-Type', 'text/html')
+
+      res.write("<table><tr><th>Timestamp</th><th>Action</th><th>Data</th></tr>")
+
+      for(i in entries){
+
+        res.write(entries[entries.length-i-1])
+
+      }
+
+      res.write("</table>")
+
+      res.end()
+
+      break;
+
+    case 'POST':
+
+      //add entry
+
+      req.on('data', data => {
+
+        entry = data.toString().split('|')
+
+        const new_entry = `<tr><td>${entry[0]}</td><td>${entry[1]}</td><td>${entry[2]}</td></tr>`
+
+        entries.push(new_entry)
+
+        if(entries.length > 10000){
+
+          entries.shift()
+
+        }
+
+      })
+
+      req.on('end', () => {
+
+        res.end('POST\n')
+
+      })
+
+      break;
+
+    default:
+
+      //do nothing
+
+  }
+
+})
+
+server.listen(port, () => {
+
+  console.log(`Server running at http://localhost:${port}/`);
+
+})
